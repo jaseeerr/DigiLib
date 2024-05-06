@@ -40,7 +40,7 @@ const appRouter = createBrowserRouter([
                 element: <WebsiteScraper />
             },
             {
-                path: "/test",
+                path: "/view",
                 element: <PdfUploaderAndViewer />
             },
             {
