@@ -18,12 +18,15 @@ function PdfUploaderAndViewer() {
         }
     };
 
+    // Set the workerSrc to match the pdfjs-dist version
+    const workerSrc = `https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`;
+
     return (
         <div className="container mx-auto p-4">
             <input type="file" onChange={onFileChange} className="mb-4" accept="application/pdf" />
             {file && (
                 <div className="pdf-container" style={{ height: '750px' }}>
-                    <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.10.377/build/pdf.worker.min.js`}>
+                    <Worker workerUrl={workerSrc}>
                         <Viewer fileUrl={file} plugins={[defaultLayoutPluginInstance]} />
                     </Worker>
                 </div>
