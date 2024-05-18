@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import logo from "../../assets/DigiLibLogoPng.png"
+import toast,{Toaster} from "react-hot-toast"
+import axios from "axios"
+import { SERVER_URL } from '../../config/url';
 function SignupPage() {
     const [formData, setFormData] = useState({
         name: '',
@@ -15,10 +18,32 @@ function SignupPage() {
         }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Here you can integrate your method to handle the sign up logic
         console.log('User Submitted:', formData);
+        toast.loading("Loading")
+        const res = await axios.post(`${SERVER_URL}/admin/signup`,formData)
+        toast.dismiss()
+        console.log(res)
+        if(res.data.success)
+            {
+                toast.success("Signup Successful")
+                setTimeout(()=>{
+                      location.href='/login'
+                },1500)
+            }
+            else
+            {
+                toast.error(res.data.message)
+                setTimeout(()=>{
+                    location.reload()
+              },1500)
+
+            }
+
+        
+        
+
     };
 
     return (

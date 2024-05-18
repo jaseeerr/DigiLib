@@ -1,8 +1,10 @@
 import React from 'react'
+import toast,{Toaster} from "react-hot-toast"
 
 function Nav() {
   return (
     <nav>
+      <Toaster/>
   <div className="h-20 bg-[#cecfcf] w-full flex justify-center">
     <div className="flex items-center justify-between w-full px-4 md:w-1/2">
       <a href="/" className="p-1 rounded-md">

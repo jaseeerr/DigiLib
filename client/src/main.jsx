@@ -10,6 +10,9 @@ import LoginPage from "./pages/user/Login";
 import AddBookForm from "./pages/user/AddBook";
 import PdfUploaderAndViewer from "./pages/user/Test";
 import Nav from "./components/Nav";
+import AdminNav from "./components/AdminNav";
+import AdminPage from "./pages/admin/Home";
+import PdfViewer from "./pages/user/getPdf";
 
 
 
@@ -27,6 +30,18 @@ const AppLayout = () => {
     )
 }
 
+
+const AdminLayout = () => {
+
+    return (
+
+        <>
+        <AdminNav/>
+            <Outlet/>
+         
+        </>
+    )
+}
 
 
 
@@ -56,11 +71,22 @@ const appRouter = createBrowserRouter([
                 path: "/addBook",
                 element: <AddBookForm />
             },
-           
-           
-          
-
-
+            {
+                path: "/getPdf",
+                element: <PdfViewer />
+            },
+        ]
+    },
+    {
+        path: "/admin",
+        element: <AdminLayout />,
+        errorElement: <Error />,
+        children: [
+            {
+                path: "/admin",
+                element: <AdminPage />
+            },
+            
         ]
     },
   
