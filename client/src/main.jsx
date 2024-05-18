@@ -9,7 +9,7 @@ import SignupPage from "./pages/user/Signup";
 import LoginPage from "./pages/user/Login";
 import AddBookForm from "./pages/user/AddBook";
 import PdfUploaderAndViewer from "./pages/user/Test";
-
+import Nav from "./components/Nav";
 
 
 
@@ -20,6 +20,7 @@ const AppLayout = () => {
     return (
 
         <>
+        <Nav/>
             <Outlet/>
          
         </>
