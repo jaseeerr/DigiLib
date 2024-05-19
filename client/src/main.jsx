@@ -72,9 +72,13 @@ const appRouter = createBrowserRouter([
                 element: <AddBookForm />
             },
             {
-                path: "/getPdf",
+                path: "/report/:id",
                 element: <PdfViewer />
             },
+            // {
+            //     path: "/viewPdf",
+            //     element: <PdfViewer />
+            // },
         ]
     },
     {

@@ -4,6 +4,7 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { useParams } from 'react-router-dom';
 
 function PdfViewer() {
     const [fileUrl, setFileUrl] = useState('');
@@ -11,12 +12,15 @@ function PdfViewer() {
 
     // Example filename - you might want to retrieve this from user input or another source
     const filename = 'pdfFile-1716050175628.pdf';
+    
+    const {id} = useParams()
 
     useEffect(() => {
         const fetchPdfFile = async () => {
             try {
+                const filename1 = await localStorage.getItem('pdfName')
                 // Update the URL to your server's URL
-                const response = await axios.get(`http://localhost:5000/admin/getPdf/${filename}`, {
+                const response = await axios.get(`http://localhost:5000/getPdf/${id}`, {
                     responseType: 'blob'  // Important for dealing with PDFs
                 });
 

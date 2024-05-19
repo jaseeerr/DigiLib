@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from "../../assets/DigiLibLogoPng.png"
 import axios from "axios"
 import toast from "react-hot-toast"
@@ -42,6 +42,13 @@ function LoginPage() {
             }
 
     };
+
+    useEffect(()=>{
+        if(localStorage.getItem('userToken'))
+            {
+                localStorage.removeItem('userToken')
+            }
+    },[])
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#dddddd] px-4 sm:px-6 lg:px-8">

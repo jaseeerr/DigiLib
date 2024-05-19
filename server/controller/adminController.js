@@ -35,35 +35,35 @@ module.exports = {
           res.json({success:false,message:"unknown internal error"})
         }
       },
-      login:async (req,res) => {
-        const {email, password} = req.body
-        console.log(req.body)
+      login: async (req, res) => {
+        const {email, password} = req.body;
+        console.log(req.body);
         try {
-          // Retrieve the user by email
-          const user = await User.findOne({ email: email });
-          if (!user) {
-            res.json({message:"Email Not Found",success:false})
-          }
-      
-          // Verify the password with argon2
-          const validPassword = await argon2.verify(user.password, password);
-          if (!validPassword) {
-            res.json({message:"Invalid Password",success:false})
-          }
-
-          const data1 = JSON.parse(JSON.stringify(user));
-          const token = jwt.sign(
-            data1,
-            process.env.ACCESS_TOKEN_SECRET
-          );
-      
-          console.log('User logged in successfully');
-          res.json({message:"User logged in successfully",success:true,token}) 
+            // Retrieve the user by email
+            const user = await User.findOne({ email: email });
+            if (!user) {
+                return res.json({message:"Email Not Found",success:false});
+            }
+        
+            // Verify the password with argon2
+            const validPassword = await argon2.verify(user.password, password);
+            if (!validPassword) {
+                return res.json({message:"Invalid Password",success:false});
+            }
+    
+            const data1 = JSON.parse(JSON.stringify(user));
+            const token = jwt.sign(
+                data1,
+                process.env.ACCESS_TOKEN_SECRET
+            );
+        
+            console.log('User logged in successfully');
+            res.json({message:"User logged in successfully",success:true,token});
         } catch (err) {
-          console.error("Error in login function:", err.message);
-          res.json({message:"Internal Error",success:true}) 
+            console.error("Error in login function:", err.message);
+            res.status(500).json({message:"Internal Error",success:false}); // Also set proper HTTP status code
         }
-      },
+    },
       uploadPdf:async(req,res)=>{
         try {
           if (req.file) {
@@ -82,7 +82,7 @@ module.exports = {
 
       },
       uploadReport:async(req,res)=>{
-        console.log(req.user)
+        console.log(req.body)
         try {
           const newReport = new Report({
               reportId: req.body.reportId,
@@ -122,6 +122,30 @@ module.exports = {
             }
         });
     });
+      },
+
+      getMyReport:async(req,res)=>{
+
+        try {
+          let x= req.user._id
+          x = x.toString()
+          console.log(x);
+          const data = await Report.find({ownerId:x}).sort({ date: -1 })
+          res.json({data,success:true})
+        } catch (error) {
+          console.log(error.message)
+          res.json({success:false})
+        }
+
+      },
+      deleteReport:async(req,res)=>{
+        try {
+               const data = await Report.findByIdAndDelete(req.params.id)
+               res.json({success:true})     
+        } catch (error) {
+          console.log(error.message)
+          res.json({success:false})
+        }
       }
 
 }

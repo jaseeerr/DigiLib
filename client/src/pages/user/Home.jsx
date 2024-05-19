@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-
+import React, { useState,useEffect } from 'react';
+import axios from "axios"
+import { SERVER_URL } from '../../config/url';
 function ProjectArchiveSystem() {
     const [formData, setFormData] = useState({
-        keywords: '',
-        fromYear: '',
-        toYear: ''
+        keyword: '',
+        from: '',
+        to: ''
     });
 
     const handleChange = (e) => {
@@ -15,18 +16,35 @@ function ProjectArchiveSystem() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
         e.preventDefault();
         console.log('Searching for:', formData);
-        // Add your search logic here
+        const res = await axios.post(`${SERVER_URL}/search`,formData)
+        console.log(res)
+
+        
     };
 
-    const reports = [
-      { id: 1, title: 'Report One', content: 'Content One', year: 2022, userId: 101 },
-      { id: 2, title: 'Report Two', content: 'Content Two', year: 2021, userId: 102 },
-      { id: 3, title: 'Report Three', content: 'Content Three', year: 2023, userId: 103 },
-      // Add more data as needed
-  ];
+
+
+
+  const [reports, setReports] = useState([]);
+
+  useEffect(() => {
+      const fetchLatestReports = async () => {
+          try {
+              const response = await axios.get('http://localhost:5000/getReports');
+              setReports(response.data);
+          } catch (error) {
+              console.error('Error fetching latest reports:', error);
+          }
+      };
+
+      fetchLatestReports();
+  }, []);
+
+const [keyword,setKeyword] = useState('hackbook')
+
 
     return (
       <>
@@ -39,9 +57,11 @@ function ProjectArchiveSystem() {
                 publication years. Start your exploration today and uncover valuable insights from student projects 
                 across various fields.
             </p>
+         
+
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="keywords" className="block text-sm font-medium text-gray-700">Keywords:</label>
+                    <label htmlFor="keywords" className="block text-sm font-medium text-gray-700">Search:</label>
                     <input
                         type="text"
                         name="keywords"
@@ -78,35 +98,38 @@ function ProjectArchiveSystem() {
                         />
                     </div>
                 </div>
-                <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                <button type='submit' className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                     Access Reports
                 </button>
             </form>
         </div>
 
-        <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-            <table className="w-full text-sm text-left text-gray-500">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                        <th scope="col" className="py-3 px-6">Report ID</th>
-                        <th scope="col" className="py-3 px-6">Title</th>
-                        <th scope="col" className="py-3 px-6">Content</th>
-                        <th scope="col" className="py-3 px-6">Publication Year</th>
-                        <th scope="col" className="py-3 px-6">User ID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {reports.map(report => (
-                        <tr key={report.id} className="bg-white border-b">
-                            <th scope="row" className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">{report.id}</th>
-                            <td className="py-4 px-6">{report.title}</td>
-                            <td className="py-4 px-6">{report.content}</td>
-                            <td className="py-4 px-6">{report.year}</td>
-                            <td className="py-4 px-6">{report.userId}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className="overflow-x-auto lg:w-2/3 mx-auto sm:w-screen relative shadow-md sm:rounded-lg mb-10">
+            {reports.length > 0 &&
+             <table className="w-full text-sm text-left text-gray-500">
+             <thead className="text-xs text-gray-700 uppercase bg-gray-100 border">
+             <tr>
+                     <th scope="col" className="py-2 px-2 text-center">Report ID</th>
+                     <th scope="col" className="py-2 px-2 text-center">Title</th>
+                     <th scope="col" className="py-2 px-2 text-center">Content</th>
+                     <th scope="col" className="py-2 px-2 text-center">Publication Year</th>
+                     <th scope="col" className="py-2 px-2 text-center">User ID</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {reports.map(report => (
+                      <tr key={report._id} className="bg-white border-b">
+                      <th scope="row" className="py-2 px-2 text-center font-medium text-black whitespace-nowrap">{report.reportId}</th>
+                      <td className="py-2 px-2 text-center text-black">{report.title}</td>
+                      <td className="py-2 px-2 text-center text-black underline"><a href={`/report/${report.content.replace(/\.pdf$/, '')}`} target='_blank'>{report.content}</a></td>
+                      <td className="py-2 px-2 text-center text-black">{report.publicationYear}</td>
+                      <td className="py-2 px-2 text-center text-black">{report.ownerName}</td>
+                  </tr>
+                 ))}
+             </tbody>
+         </table>
+            }
+           
         </div>
       </>
     );

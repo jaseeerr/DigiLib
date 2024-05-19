@@ -13,7 +13,14 @@ router.post('/uploadPdf',auth.userAuth, upload.single('pdfFile'), adminControlle
 
 router.post('/uploadReport',auth.userAuth,adminController.uploadReport)
 
-router.get('/getPdf/:filename',adminController.getPdf)
+router.get('/getMyReport',auth.userAuth,adminController.getMyReport)
+
+router.get('/deleteReport/:id',auth.userAuth,adminController.deleteReport)
+
+
+
+
+
 
 
 

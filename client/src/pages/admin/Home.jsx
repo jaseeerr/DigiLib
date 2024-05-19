@@ -3,73 +3,89 @@ import axios from "axios"
 import toast from 'react-hot-toast';
 import { SERVER_URL } from '../../config/url';
 import myAxiosInstance from "../../utils/axios"
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 function AdminPage() {
-    const axiosInstance = myAxiosInstance()
-    const token = localStorage.getItem('userToken')
+    const MySwal = withReactContent(Swal);
+
+    const token = localStorage.getItem('userToken');
+    const [report,setReport] = useState([])
     const [formData, setFormData] = useState({
         reportId: '',
         title: '',
         publicationYear: '',
-        content: null,
+        content: '',
         userId: '',
         keywords: ''
     });
     const [file, setFile] = useState(null);
-    const [fileName,setFileName] = useState('')
+
+    const deleteReport = (id,title)=>{
+        Swal.fire({
+            title: "Do you want to delete this report?"+`\n${title}`,
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            denyButtonText: `Don't save`
+          }).then(async(result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+              Swal.fire("Deleted!", "", "success");
+              const res = await axios.get(
+                `${SERVER_URL}/admin/deleteReport/${id}`,
+                
+                { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` } }
+            )
+            setTimeout(()=>{
+                location.reload()
+            },1500)
+            } else if (result.isDenied) {
+              Swal.fire("Changes are not saved", "", "info");
+            }
+          });
+    }
+
+    useEffect(() => {
+        if (!token) {
+            window.location.href = '/login';
+        }
+    }, [token]);
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]); // Set the first selected file
+        setFile(event.target.files[0]);
     };
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
-        if (name === "publicationYear") {
-            // Trim spaces when modifying the publication year
-            setFormData({
-                ...formData,
-                [name]: value.trim()
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
-            });
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === "publicationYear" ? value.trim() : value
+        }));
     };
 
     const handleUpload = async () => {
         if (!file) {
-            alert("Please select a file first!");
+            toast.error("Please select a file first!");
             return;
         }
 
         const uploadFormData = new FormData();
-        uploadFormData.append('pdfFile', file);  // Ensure your server is expecting 'pdfFile' key
+        uploadFormData.append('pdfFile', file);
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/admin/uploadPdf', // Change this URL to your upload route
-                uploadFormData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${token}`,
-                    }
-                }
-            );
-            console.log('Upload response:', response.data);
-            toast.dismiss()
-            if(response.data.success)
-                {
-                    toast.success("File uploaded")
-                    setFileName(response.data.filename)
-                    setFormData(prevFormData => ({
-                        ...prevFormData,
-                        content: response.data.filename  // Assuming the API returns a filename
-                    }));
+                `${SERVER_URL}/admin/uploadPdf`,
+                uploadFormData,
+                { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` } }
+            )
 
-                }
-            // alert('File uploaded successfully!');
-            return response.data;
+            if (response.data.success) {
+                toast.success("File uploaded");
+                return response.data.filename;  // Return filename for further processing
+            } else {
+                toast.error('Upload failed!');
+                return null;
+            }
         } catch (error) {
             console.error('Error uploading file:', error);
             toast.error('Upload failed!');
@@ -79,33 +95,63 @@ function AdminPage() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log(formData);
-        toast.loading("Uploading PDF")
+        toast.loading("Uploading PDF");
 
-        const uploadResult = await handleUpload();
-        console.log(uploadResult)
-        toast.dismiss()
-        const res = await axios.post(`${SERVER_URL}/admin/uploadReport`,formData,{
-            headers: {
-             
-                Authorization: `Bearer ${token}`,
+        const filename = await handleUpload();
+        if (filename) {
+            const updatedFormData = { ...formData, content: filename };
+            console.log('Updated formData:', updatedFormData);
+
+            try {
+                const res = await axios.post(
+                    `${SERVER_URL}/admin/uploadReport`,
+                    updatedFormData,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                toast.dismiss();
+                if (res.data.success) {
+                    toast.success("Report uploaded successfully!");
+                } else {
+                    toast.error("Unknown Error");
+                }
+
+                setTimeout(()=>{
+          location.reload()
+                },1000)
+            } catch (error) {
+                console.error('Error uploading report:', error);
+                toast.error('Error during report upload');
             }
-        })
-        console.log(res)
+        }
     };
+
+    const getReports = async()=>{
+
+        const res = await axios.get(
+            `${SERVER_URL}/admin/getMyReport`,
+            { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` } }
+        )
+        console.log(res)
+        setReport(res.data.data)
+
+    }
 
 
     useEffect(()=>{
-
-        if(!localStorage.getItem('userToken'))
-            {
-                location.href = '/login'
-            }
+     getReports()
     },[])
 
+
+
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold text-center mb-6">Admin Page</h1>
+       
+
+
+<>
+
+<div className="max-w-4xl mx-auto px-4 py-8">
+            <h1 className="text-2xl font-bold text-center mb-6">Add New Report</h1>
             <form onSubmit={handleSubmit} className="bg-gray-100 p-4 shadow-md rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <input
@@ -155,7 +201,7 @@ function AdminPage() {
                         className="input text-gray-700 w-full p-2 rounded-md border "
                     />
                 </div>
-                <div className="mb-6">
+                {/* <div className="mb-6">
                     <input
                         type="text"
                         name="userId"
@@ -164,12 +210,49 @@ function AdminPage() {
                         onChange={handleInputChange}
                         className="input text-gray-700 w-full p-2 rounded-md border "
                     />
-                </div>
+                </div> */}
                 <button type="submit" className="bg-black text-white py-2 px-4 rounded hover:bg-gray-700">
                     Add
                 </button>
             </form>
+
+         
         </div>
+
+<div className="overflow-x-auto lg:w-2/3 mx-auto sm:w-screen relative shadow-md sm:rounded-lg">
+            {report.length > 0 &&
+             <table className="w-full text-sm text-left text-gray-500 mb-10">
+             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                 <tr>
+                     <th scope="col" className="py-2 px-2 text-center">Report ID</th>
+                     <th scope="col" className="py-2 px-2 text-center">Title</th>
+                     <th scope="col" className="py-2 px-2 text-center">Content</th>
+                     <th scope="col" className="py-2 px-2 text-center">Publication Year</th>
+                     <th scope="col" className="py-2 px-2 text-center">User ID</th>
+                     <th scope="col" className="py-2 px-2 text-center">Action</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {report.map(report => (
+                     <tr key={report._id} className="bg-white border-b">
+                         <th scope="row" className="py-2 px-2 text-center font-medium text-black whitespace-nowrap">{report.reportId}</th>
+                         <td className="py-2 px-2 text-center text-black">{report.title}</td>
+                         <td className="py-2 px-2 text-center text-black underline"><a href={`/report/${report.content.replace(/\.pdf$/, '')}`} target='_blank'>{report.content}</a></td>
+                         <td className="py-2 px-2 text-center text-black">{report.publicationYear}</td>
+                         <td className="py-2 px-2 text-center text-black">{report.ownerName}</td>
+                         <td className="py-2 px-2 text-center text-black">
+                         <a onClick={()=>deleteReport(report._id,report.content)} type="submit" className="bg-black cursor-pointer text-white py-1 px-2 rounded hover:bg-gray-700">
+                            Delete
+                         </a>
+                         </td>
+                     </tr>
+                 ))}
+             </tbody>
+         </table>
+            }
+           
+        </div>
+</>
     );
 }
 
