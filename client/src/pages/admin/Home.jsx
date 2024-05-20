@@ -52,7 +52,20 @@ function AdminPage() {
     }, [token]);
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            if (selectedFile.type !== "application/pdf") {
+                // Set error message and clear the input
+                // setError('Please upload a PDF file.');
+                event.target.value = ''; // Clear the input
+                setFile(null); // Reset file state
+                alert("This field only accepts PDF Files.")
+            } else {
+                // Clear any existing error and set the file
+                // setError('');
+                setFile(selectedFile);
+            }
+        }
     };
 
     const handleInputChange = (event) => {
@@ -157,6 +170,7 @@ function AdminPage() {
                     <input
                         type="text"
                         name="reportId"
+                        maxLength={15}
                         placeholder="Report ID"
                         value={formData.reportId}
                         onChange={handleInputChange}
@@ -165,6 +179,7 @@ function AdminPage() {
                     <input
                         type="text"
                         name="title"
+                        maxLength={100}
                         placeholder="Title"
                         value={formData.title}
                         onChange={handleInputChange}
@@ -188,6 +203,7 @@ function AdminPage() {
                     <textarea
                         name="keywords"
                         placeholder="Keywords"
+                        maxLength="90"
                         value={formData.keywords}
                         onChange={handleInputChange}
                         className="input text-gray-700 w-full p-2 rounded-md border "
@@ -198,6 +214,7 @@ function AdminPage() {
                         type="file"
                         name="content"
                         onChange={handleFileChange}
+                        accept="application/pdf"
                         className="input text-gray-700 w-full p-2 rounded-md border "
                     />
                 </div>
@@ -228,6 +245,7 @@ function AdminPage() {
                      <th scope="col" className="py-2 px-2 text-center">Title</th>
                      <th scope="col" className="py-2 px-2 text-center">Content</th>
                      <th scope="col" className="py-2 px-2 text-center">Publication Year</th>
+                     <th scope="col" className="py-2 px-2 text-center">Keywords</th>
                      <th scope="col" className="py-2 px-2 text-center">User ID</th>
                      <th scope="col" className="py-2 px-2 text-center">Action</th>
                  </tr>
@@ -239,6 +257,7 @@ function AdminPage() {
                          <td className="py-2 px-2 text-center text-black">{report.title}</td>
                          <td className="py-2 px-2 text-center text-black underline"><a href={`/report/${report.content.replace(/\.pdf$/, '')}`} target='_blank'>{report.content}</a></td>
                          <td className="py-2 px-2 text-center text-black">{report.publicationYear}</td>
+                         <td className="py-2 px-2 text-center text-black whitespace-break-spaces">{report.keywords}</td>
                          <td className="py-2 px-2 text-center text-black">{report.ownerName}</td>
                          <td className="py-2 px-2 text-center text-black">
                          <a onClick={()=>deleteReport(report._id,report.content)} type="submit" className="bg-black cursor-pointer text-white py-1 px-2 rounded hover:bg-gray-700">

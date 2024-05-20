@@ -39,8 +39,11 @@ module.exports={
         }
       },
       search:async(req,res)=>{
-        const {keyword,from,to} = req.body
-
+        const {keywords,fromYear,toYear} = req.body
+        const keyword = keywords
+        const from = fromYear
+        const to = toYear
+        console.log(req.body)
         // Check for required keyword parameter
         if (!keyword) {
             return res.status(400).json({ message: "Keyword query parameter is required." });
