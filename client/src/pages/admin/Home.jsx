@@ -347,7 +347,7 @@ console.log(checkedReports);
                 <input
                     type="text"
                     name="reportId"
-                    maxLength={15}
+                    maxLength={25}
                     placeholder="Report ID"
                     value={formData.reportId}
                     onChange={handleInputChange}
