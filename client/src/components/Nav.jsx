@@ -14,7 +14,7 @@ function Nav() {
             </svg>
           </a>
         <span>
-        <h1 className="text-md md:text-xl lg:text-2xl font-bold text-[#F37123] text-center flex-1">Project Archive System</h1>
+        {/* <h1 className="text-md md:text-xl lg:text-2xl font-bold text-[#F37123] text-center flex-1">Project Archive System</h1> */}
        <span className='flex justify-center'>
        <img src={logo} alt="" className='h-10' />
        </span>

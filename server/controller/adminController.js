@@ -138,14 +138,95 @@ module.exports = {
         }
 
       },
-      deleteReport:async(req,res)=>{
+      deleteReport: async (req, res) => {
         try {
-               const data = await Report.findByIdAndDelete(req.params.id)
-               res.json({success:true})     
+            // Find the report by ID
+            const report = await Report.findById(req.params.id);
+            if (!report) {
+                return res.status(404).json({ success: false, message: 'Report not found' });
+            }
+    
+            // Get the file paths from the report
+            const filePaths = report.content.map(fileName => path.join(__dirname, 'public', 'reports', fileName));
+            console.log(filePaths)
+            // Delete each file from the filesystem
+            filePaths.forEach(filePath => {
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting file:', err.message);
+                        // Don't return here, continue deleting other files
+                    }
+                });
+            });
+    
+            // Delete the report from the database
+            await Report.findByIdAndDelete(req.params.id);
+    
+            res.json({ success: true });
         } catch (error) {
-          console.log(error.message)
-          res.json({success:false})
+            console.error('Error:', error.message);
+            res.status(500).json({ success: false, message: 'Server error' });
         }
+    },
+    deleteMultipleReports: async (req, res) => {
+      try {
+        console.log("body");
+        console.log(req.body)
+          const  reportIds  = req.body.reports
+          if (!reportIds || !Array.isArray(reportIds) || reportIds.length === 0) {
+              return res.status(400).json({ success: false, message: 'No report IDs provided' });
+          }
+  
+          // Find all reports by their IDs
+          const reports = await Report.find({ _id: { $in: reportIds } });
+          if (reports.length === 0) {
+              return res.status(404).json({ success: false, message: 'No reports found for the provided IDs' });
+          }
+  
+          // Get all file paths from the reports
+          const filePaths = reports.flatMap(report => 
+              report.content.map(fileName => path.join(__dirname, 'public', 'reports', fileName))
+          );
+  
+          // Delete each file from the filesystem
+          await Promise.all(filePaths.map(async (filePath) => {
+              return new Promise((resolve, reject) => {
+                  fs.unlink(filePath, (err) => {
+                      if (err) {
+                          console.error('Error deleting file:', err.message);
+                          reject(err);
+                      } else {
+                          resolve();
+                      }
+                  });
+              });
+          }));
+  
+          // Delete the reports from the database
+          await Report.deleteMany({ _id: { $in: reportIds } });
+  
+          res.json({ success: true });
+      } catch (error) {
+          console.error('Error:', error.message);
+          res.status(500).json({ success: false, message: 'Server error' });
       }
+  },
+  updateReport:async(req,res)=>{
+console.log(req.body);
+    try {
+      const newReport = await Report.findByIdAndUpdate(req.body.data.id,{$set:{
+        title:req.body.data.title,
+        reportId:req.body.data.reportId,
+        keywords:req.body.data.keywords,
+        publicationYear:req.body.data.publicationYear
+      }})
+      res.json({success:true})
+    } catch (error) {
+      console.log(error.message)
+      console.log(error)
+      res.json({success:false})
+    }
+
+  },
 
 }

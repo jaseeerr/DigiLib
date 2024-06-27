@@ -147,7 +147,14 @@ function ProjectArchiveSystem() {
                                 <tr key={report._id} className="bg-white border-b">
                                     <th scope="row" className="py-2 px-2 text-center font-medium text-[#F37123] whitespace-nowrap">{report.reportId}</th>
                                     <td className="py-2 px-2 text-center text-[#F37123]">{report.title}</td>
-                                    <td className="py-2 px-2 text-center text-[#F37123] underline cursor-pointer"><a onClick={() => { setModal(true) }}>{report.content}</a></td>
+                                    {/* <td className="py-2 px-2 text-center text-[#F37123] underline cursor-pointer"><a onClick={() => { setModal(true) }}>{report.content}</a></td> */}
+                                    <td className="py-2 px-2 text-center text-[#F37123]">
+                                      {report.content.map((file, index) => (
+                                      <div key={index} className="underline mb-2">
+                                      <a href={`/report/${file.replace(/\.pdf$/, '')}`} target='_blank'>{file}</a>
+                                      </div>
+                                      ))}
+                    </td>
                                     <td className="py-2 px-2 text-center text-[#F37123]">{report.publicationYear}</td>
                                     <td className="py-2 px-2 text-center text-[#F37123]">{report.ownerName}</td>
                                 </tr>

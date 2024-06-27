@@ -17,6 +17,11 @@ router.get('/getMyReport',auth.userAuth,adminController.getMyReport)
 
 router.get('/deleteReport/:id',auth.userAuth,adminController.deleteReport)
 
+router.post('/deleteMultipleReports',auth.userAuth,adminController.deleteMultipleReports)
+
+router.post('/updateReport',auth.userAuth,adminController.updateReport)
+
+
 
 
 
