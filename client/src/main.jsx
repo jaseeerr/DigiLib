@@ -13,6 +13,7 @@ import Nav from "./components/Nav";
 import AdminNav from "./components/AdminNav";
 import AdminPage from "./pages/admin/Home";
 import PdfViewer from "./pages/user/getPdf";
+import ProjectArchiveSystem from "./pages/user/Home";
 
 
 
@@ -53,7 +54,7 @@ const appRouter = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <WebsiteScraper />
+                element: <ProjectArchiveSystem />
             },
             {
                 path: "/view",
