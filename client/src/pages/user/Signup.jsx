@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from "../../assets/DigiLibLogoPng.png"
+import logo from "../../assets/manipalLogo1.png"
 import toast,{Toaster} from "react-hot-toast"
 import axios from "axios"
 import { SERVER_URL } from '../../config/url';

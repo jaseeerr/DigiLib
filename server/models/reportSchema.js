@@ -5,7 +5,7 @@ const reportSchema = new Schema({
     date: { type: Date, default: Date.now },
     reportId:String,
     title:String,
-    content:String,
+    content:[],
     publicationYear:Number,
     keywords:String,
     ownerId:String,
